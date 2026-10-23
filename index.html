@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOSAIC: Towards a Universal Latent Space for Computational Pathology Foundation Models</title>
+    <meta name="description" content="MOSAIC benchmarks representational similarity, alignment, and transfer across pathology foundation models.">
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Academicons for publication links -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <!-- Hero particles (the lightweight particles.js successor used by PURGE) -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.12.0/tsparticles.slim.bundle.min.js" defer></script>
+</head>
+
+<body>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">MOSAIC</a>
+            <div class="nav-links">
+                <a href="#key-idea">Key Idea</a>
+                <a href="#mosaic-bench">MOSAIC-Bench</a>
+                <a href="#results">Results</a>
+                <a href="#theory-methods">Methods</a>
+                <a href="https://github.com/researchsubmissions66/MOSAIC" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero" style="min-height: 80vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;">
+
+        <div id="hero-particles" class="hero-particles" aria-hidden="true"></div>
+
+        <div class="logo-container animate-up" style="margin-bottom: 3rem; text-align: center;">
+            <img src="images/mosaic.jpg" alt="MOSAIC Logo" class="floating-logo" style="max-height: 450px; width: auto;">
+        </div>
+        <h1 class="animate-up" style="max-width: 1000px; margin-left: auto; margin-right: auto;">
+            MOSAIC: Towards a Universal Latent Space for Computational Pathology Foundation Models
+        </h1>
+
+        <div class="authors animate-up delay-1" style="margin-top: 1.5rem; font-size: 1.35rem; font-weight: 500; display: flex; justify-content: center; gap: 1.5rem; color: #1e293b;">
+            <span>Anonymous Submission</span>
+        </div>
+
+        <div class="affiliations animate-up delay-1" style="margin-top: 0.8rem; font-size: 1.15rem; color: #64748b; display: flex; justify-content: center;">
+            <span>Under Review at WACV</span>
+        </div>
+
+        <div class="hero-buttons animate-up delay-2" style="margin-top: 3rem;">
+            <a href="https://github.com/researchsubmissions66/MOSAIC" class="btn btn-primary" target="_blank"><i
+                    class="fab fa-github"></i> Code</a>
+            <a href="#results" class="btn btn-secondary"><i class="fas fa-chart-bar"></i> Results</a>
+            <a href="#theory-methods" class="btn btn-secondary"><i class="fas fa-th"></i> Methods</a>
+        </div>
+    </header>
+
+    <!-- Headline metrics -->
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/>
+          <stop offset="100%" stop-color="#6366f1"/>
+        </linearGradient>
+        <linearGradient id="grad-violet" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#a78bfa"/>
+        </linearGradient>
+        <linearGradient id="grad-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0d9488"/>
+          <stop offset="100%" stop-color="#2dd4bf"/>
+        </linearGradient>
+        <linearGradient id="grad-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e11d48"/>
+          <stop offset="100%" stop-color="#fb7185"/>
+        </linearGradient>
+        <linearGradient id="grad-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#d97706"/>
+          <stop offset="100%" stop-color="#fbbf24"/>
+        </linearGradient>
+        <linearGradient id="grad-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#10b981"/>
+          <stop offset="100%" stop-color="#34d399"/>
+        </linearGradient>
+        <linearGradient id="grad-fuchsia" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#c026d3"/>
+          <stop offset="100%" stop-color="#e879f9"/>
+        </linearGradient>
+        <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0ea5e9"/>
+          <stop offset="100%" stop-color="#38bdf8"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="metrics-strip">
+
+      <!-- Patch Encoders -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(99,102,241,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="2.5" y="3" width="9" height="9" rx="2" stroke="url(#grad-blue)" stroke-width="1.6" fill="url(#grad-blue)" fill-opacity="0.08"/>
+            <path d="M2.5 7.5H11.5M7 3V12" stroke="url(#grad-blue)" stroke-width="1.1" stroke-opacity="0.55"/>
+            <circle cx="5" cy="5.4" r="0.8" fill="url(#grad-blue)"/><circle cx="9.3" cy="9.6" r="0.7" fill="url(#grad-blue)" opacity="0.65"/>
+            <path d="M13 8H15.5M14.2 6.6L15.7 8L14.2 9.4" stroke="url(#grad-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="17" y="3.5" width="4.5" height="2.2" rx="1.1" fill="url(#grad-blue)" opacity="0.35"/>
+            <rect x="17" y="7.2" width="3.4" height="2.2" rx="1.1" fill="url(#grad-blue)" opacity="0.62"/>
+            <rect x="17" y="10.9" width="5" height="2.2" rx="1.1" fill="url(#grad-blue)"/>
+            <path d="M4 16.5H20M4 20H16" stroke="url(#grad-blue)" stroke-width="1.5" stroke-linecap="round" opacity="0.45"/>
+          </svg>
+        </div>
+        <div class="metric-num">12</div>
+        <div class="metric-label">Patch Encoders</div>
+      </div>
+
+      <!-- Slide Encoders -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(52,211,153,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="2.5" y="2" width="13" height="20" rx="2.2" stroke="url(#grad-emerald)" stroke-width="1.6" fill="url(#grad-emerald)" fill-opacity="0.06"/>
+            <path d="M5.3 6.3C7.2 4.6 9.8 5.4 10.5 7.1C11.1 8.7 13.3 9.1 12.8 11.2C12.4 13.1 9.7 12.4 8.4 14.1C7.2 15.7 4.6 14.2 5.2 12.1C5.7 10.4 3.8 8.1 5.3 6.3Z" fill="url(#grad-emerald)" opacity="0.3"/>
+            <circle cx="7.2" cy="8.2" r="0.65" fill="url(#grad-emerald)"/><circle cx="10.4" cy="10.5" r="0.55" fill="url(#grad-emerald)" opacity="0.7"/>
+            <path d="M5 18H13" stroke="url(#grad-emerald)" stroke-width="1.3" stroke-linecap="round" opacity="0.55"/>
+            <path d="M15.8 12H18" stroke="url(#grad-emerald)" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="20.5" cy="6" r="1.2" fill="url(#grad-emerald)" opacity="0.35"/><circle cx="20.5" cy="12" r="1.2" fill="url(#grad-emerald)" opacity="0.65"/><circle cx="20.5" cy="18" r="1.2" fill="url(#grad-emerald)"/>
+          </svg>
+        </div>
+        <div class="metric-num">6</div>
+        <div class="metric-label">Slide Encoders</div>
+      </div>
+
+      <!-- Downstream Tasks -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(167,139,250,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="3" fill="url(#grad-violet)" fill-opacity="0.18" stroke="url(#grad-violet)" stroke-width="1.6"/>
+            <circle cx="12" cy="12" r="0.9" fill="url(#grad-violet)"/>
+            <path d="M10 9.7L7.2 6.8M14 9.7L16.8 6.8M12 15V18" stroke="url(#grad-violet)" stroke-width="1.5" stroke-linecap="round"/>
+            <rect x="2" y="2.5" width="6.5" height="4" rx="1.4" stroke="url(#grad-violet)" stroke-width="1.3" fill="url(#grad-violet)" fill-opacity="0.08"/>
+            <rect x="15.5" y="2.5" width="6.5" height="4" rx="1.4" stroke="url(#grad-violet)" stroke-width="1.3" fill="url(#grad-violet)" fill-opacity="0.16"/>
+            <rect x="8.7" y="18" width="6.6" height="4" rx="1.4" stroke="url(#grad-violet)" stroke-width="1.3" fill="url(#grad-violet)" fill-opacity="0.24"/>
+            <path d="M4 4.5H6.5M17.5 4.5H20M10.8 20H13.2" stroke="url(#grad-violet)" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="metric-num">13</div>
+        <div class="metric-label">Downstream Tasks</div>
+      </div>
+
+      <!-- Total Slides -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(13,148,136,0.12), rgba(45,212,191,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="2" y="7" width="16" height="13" rx="2" stroke="url(#grad-teal)" stroke-width="1.3" opacity="0.35"/>
+            <rect x="4.8" y="4.3" width="16" height="13" rx="2" stroke="url(#grad-teal)" stroke-width="1.6" fill="url(#grad-teal)" fill-opacity="0.08"/>
+            <path d="M8 8.2C9.2 6.8 11.2 7.2 12 8.4C12.8 9.6 15.1 8.7 16 10.2C16.9 11.8 15.1 13.4 13.5 13C11.9 12.6 10.7 14.2 9.1 13.4C7.3 12.5 6.6 9.8 8 8.2Z" fill="url(#grad-teal)" opacity="0.42"/>
+            <circle cx="10.2" cy="9.7" r="0.6" fill="url(#grad-teal)"/><circle cx="14.1" cy="11.1" r="0.55" fill="url(#grad-teal)" opacity="0.72"/>
+            <path d="M17.4 7.2H19M17.4 9.5H19M17.4 11.8H19" stroke="url(#grad-teal)" stroke-width="0.9" stroke-linecap="round"/>
+            <path d="M7.3 15.2H18.6" stroke="url(#grad-teal)" stroke-width="1.1" stroke-linecap="round" opacity="0.45"/>
+          </svg>
+        </div>
+        <div class="metric-num">4,331</div>
+        <div class="metric-label">Total Slides (TCGA & CPTAC)</div>
+      </div>
+
+      <!-- Total Patches -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(56,189,248,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="2.5" y="2.5" width="19" height="19" rx="3" stroke="url(#grad-cyan)" stroke-width="1.5" fill="url(#grad-cyan)" fill-opacity="0.05"/>
+            <path d="M8.8 2.8V21.2M15.2 2.8V21.2M2.8 8.8H21.2M2.8 15.2H21.2" stroke="url(#grad-cyan)" stroke-width="1" opacity="0.5"/>
+            <path d="M3.5 7C5.3 4.8 7.8 6.5 9.7 5.2C11.5 4 13.2 5.6 14.9 4.8C17.2 3.7 19.5 5.3 20.7 7.1M3.5 13.8C5.7 12.1 7.2 14.5 9.3 13.1C11.2 11.8 13.6 14.2 15.4 12.8C17.4 11.3 19.5 13.3 20.7 14.2" stroke="url(#grad-cyan)" stroke-width="1.15" stroke-linecap="round" opacity="0.72"/>
+            <circle cx="6" cy="5.8" r="0.7" fill="url(#grad-cyan)"/><circle cx="12" cy="11.8" r="0.65" fill="url(#grad-cyan)"/><circle cx="18.2" cy="17.8" r="0.7" fill="url(#grad-cyan)"/>
+          </svg>
+        </div>
+        <div class="metric-num">47.5M+</div>
+        <div class="metric-label">Extracted Patches</div>
+      </div>
+
+      <!-- Organs -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(192,38,211,0.12), rgba(232,121,249,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <circle cx="6.5" cy="7" r="4" stroke="url(#grad-fuchsia)" stroke-width="1.3" fill="url(#grad-fuchsia)" fill-opacity="0.06"/>
+            <circle cx="17.5" cy="7" r="4" stroke="url(#grad-fuchsia)" stroke-width="1.3" fill="url(#grad-fuchsia)" fill-opacity="0.1"/>
+            <circle cx="12" cy="17" r="4" stroke="url(#grad-fuchsia)" stroke-width="1.3" fill="url(#grad-fuchsia)" fill-opacity="0.16"/>
+            <circle cx="6.5" cy="7" r="1.3" stroke="url(#grad-fuchsia)" stroke-width="1"/>
+            <path d="M17.5 4.6V9.3M17.5 7L15.5 5.8M17.5 7L19.4 5.8" stroke="url(#grad-fuchsia)" stroke-width="1" stroke-linecap="round"/>
+            <path d="M10.3 16.1C11.2 14.7 13.6 15 13.7 16.5C13.8 18 11.2 18.8 10.5 17.4" stroke="url(#grad-fuchsia)" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="metric-num">3</div>
+        <div class="metric-label">Organs (Breast, Lung, Colon)</div>
+      </div>
+
+      <!-- Property Tests -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(225,29,72,0.12), rgba(251,113,133,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M12 2.5L20 5.5V11.4C20 16.2 16.7 20.2 12 21.7C7.3 20.2 4 16.2 4 11.4V5.5L12 2.5Z" stroke="url(#grad-rose)" stroke-width="1.6" fill="url(#grad-rose)" fill-opacity="0.08" stroke-linejoin="round"/>
+            <path d="M8.1 11.9L10.7 14.4L16.2 8.8" stroke="url(#grad-rose)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="6.4" cy="4" r="1" fill="url(#grad-rose)" opacity="0.35"/><circle cx="17.6" cy="4" r="1" fill="url(#grad-rose)" opacity="0.65"/>
+          </svg>
+        </div>
+        <div class="metric-num">229</div>
+        <div class="metric-label">Property Tests</div>
+      </div>
+
+      <!-- Magnifications -->
+      <div class="metric-card">
+        <div class="metric-icon-wrap" style="background: linear-gradient(135deg, rgba(217,119,6,0.12), rgba(251,191,36,0.08));">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="2.5" y="2.5" width="19" height="19" rx="3" stroke="url(#grad-amber)" stroke-width="1.3" opacity="0.35"/>
+            <rect x="6" y="6" width="12" height="12" rx="2.3" stroke="url(#grad-amber)" stroke-width="1.5" opacity="0.65"/>
+            <rect x="9.3" y="9.3" width="5.4" height="5.4" rx="1.4" stroke="url(#grad-amber)" stroke-width="1.5" fill="url(#grad-amber)" fill-opacity="0.12"/>
+            <circle cx="12" cy="12" r="1.2" fill="url(#grad-amber)"/>
+            <path d="M17.5 17.5L21 21" stroke="url(#grad-amber)" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="metric-num" style="font-size: 1.45rem;">20x, 10x, 5x</div>
+        <div class="metric-label">Magnifications</div>
+      </div>
+
+    </div>
+  </header>
+
+
+    <section id="key-idea" class="animate-up" style="padding: 3rem 2rem; background: var(--bg-light); border-bottom: 1px solid #eee;">
+        <div style="max-width: 1100px; margin: 0 auto;">
+            <h2 class="section-title">The Key Idea</h2>
+            <p class="section-desc" style="max-width: 750px; margin-bottom: 3rem;">
+                Do independently trained pathology foundation models learn the same thing?
+            </p>
+
+            <!-- Central hypothesis callout -->
+            <div style="background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(139,92,246,0.06)); border: 1px solid rgba(59,130,246,0.15); border-radius: 16px; padding: 2rem 2.5rem; margin-bottom: 3rem; max-width: 900px; margin-left: auto; margin-right: auto;">
+                <p style="font-size: 1.1rem; font-weight: 600; color: var(--dark); margin: 0; line-height: 1.7;">
+                    <span style="background: linear-gradient(120deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">Central Hypothesis:</span>
+                    Independently trained pathology foundation models learn <em>different coordinate systems</em> over a <em>shared underlying morphological manifold</em>.
+                </p>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin: 1rem 0 0; line-height: 1.7;">
+                    If that holds, representations should be alignable, semantic neighbourhoods should survive alignment, features should transfer between models, and a downstream classifier should be able to live inside one shared space.
+                </p>
+            </div>
+
+            <!-- Method Callout -->
+            <div class="callout-container" style="margin-bottom: 4rem;">
+                <div class="callout-header">Method</div>
+                <div class="callout-underline"></div>
+                <div class="callout-box">
+                    Benchmark 18 state-of-the-art vision and vision-language pathology encoders across 4,331 TCGA and CPTAC whole-slide images, evaluating similarity, representation alignment, and downstream transferability.
+                </div>
+            </div>
+
+            <!-- Research questions grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+
+                <!-- RQ1 -->
+                <div class="rq-card" onclick="openRqModal(0)">
+                    <div class="rq-badge" style="color: #3b82f6;">RQ1 · Similarity</div>
+                    <p class="rq-text">How similar are the representation spaces of 18 pathology encoders measured by 7 similarity metrics?</p>
+                    <button class="rq-expand" aria-label="Expand">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+
+                <!-- RQ2 -->
+                <div class="rq-card" onclick="openRqModal(1)">
+                    <div class="rq-badge" style="color: #7c3aed;">RQ2 · Architecture vs Objective</div>
+                    <p class="rq-text">Does the pretraining objective (Vision SSL vs Vision–Language) drive latent geometry more than architecture?</p>
+                    <button class="rq-expand" aria-label="Expand">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+
+                <!-- RQ3 -->
+                <div class="rq-card" onclick="openRqModal(2)">
+                    <div class="rq-badge" style="color: #0d9488;">RQ3 · Alignment</div>
+                    <p class="rq-text">Can the evaluated alignment methods align several models into one shared latent space?</p>
+                    <button class="rq-expand" aria-label="Expand">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+
+                <!-- RQ4 -->
+                <div class="rq-card" onclick="openRqModal(3)">
+                    <div class="rq-badge" style="color: #e11d48;">RQ4 · Downstream Impact</div>
+                    <p class="rq-text">Does the aligned space improve downstream MIL classification on 13 morphological, clinical, and molecular tasks?</p>
+                    <button class="rq-expand" aria-label="Expand">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+
+                <!-- RQ5 -->
+                <div class="rq-card" onclick="openRqModal(4)">
+                    <div class="rq-badge" style="color: #d97706;">RQ5 · Cross-model Transfer</div>
+                    <p class="rq-text">Does a classifier trained on one encoder generalise to another encoder's features through the shared space?</p>
+                    <button class="rq-expand" aria-label="Expand">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+
+            </div>
+
+    <!-- RQ Modal Overlay -->
+    <div id="rq-modal-overlay" class="rq-modal-overlay" onclick="closeRqModal()">
+        <div class="rq-modal" onclick="event.stopPropagation()">
+            <button class="rq-modal-close" onclick="closeRqModal()" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </button>
+            <div class="rq-modal-badge" id="rq-modal-badge"></div>
+            <h3 class="rq-modal-title" id="rq-modal-title"></h3>
+            <div class="rq-modal-body" id="rq-modal-body"></div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+
+    <!-- ============================================================
+         MOSAIC-BENCH SECTION
+    ============================================================ -->
+    <section id="mosaic-bench" class="animate-up" style="padding: 3rem 2rem; max-width: 1100px; margin: 0 auto; border-bottom: 1px solid #eee;">
+        <h2 class="section-title">MOSAIC-Bench</h2>
+        <p class="section-desc" style="max-width: 800px; margin-bottom: 3rem;">
+            A rigorous benchmark comprising 4,331 whole-slide images and 13 downstream tasks across 3 organ types.
+        </p>
+
+        <h3 class="bench-category-title" style="margin-top: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+            Cohorts (4,331 Slides Total)
+        </h3>
+        
+        <div class="bench-grid">
+            <!-- TCGA Card -->
+            <div class="bench-card">
+                <div class="bench-card-header">
+                    <h4 class="bench-card-title">TCGA</h4>
+                    <span class="bench-badge">2,169 Slides</span>
+                </div>
+                <div class="bench-stat-row">
+                    <span class="bench-stat-label">Breast (BRCA)</span>
+                    <span class="bench-stat-value">1,126</span>
+                </div>
+                <div class="bench-stat-row">
+                    <span class="bench-stat-label">Lung (LUAD / LUSC)</span>
+                    <span class="bench-stat-value">1,043</span>
+                </div>
+            </div>
+
+            <!-- CPTAC Card -->
+            <div class="bench-card">
+                <div class="bench-card-header">
+                    <h4 class="bench-card-title">CPTAC</h4>
+                    <span class="bench-badge" style="background: rgba(124,58,237,0.1); color: #7c3aed;">2,162 Slides</span>
+                </div>
+                <div class="bench-stat-row">
+                    <span class="bench-stat-label">Breast (BRCA)</span>
+                    <span class="bench-stat-value">654</span>
+                </div>
+                <div class="bench-stat-row">
+                    <span class="bench-stat-label">Lung (LUAD)</span>
+                    <span class="bench-stat-value">1,139</span>
+                </div>
+                <div class="bench-stat-row" style="border-bottom: none;">
+                    <span class="bench-stat-label">Colon (COAD)</span>
+                    <span class="bench-stat-value">369</span>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="bench-category-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            13 Downstream Tasks
+        </h3>
+
+        <div class="bench-grid">
+            <!-- High Level Card -->
+            <div class="bench-card">
+                <div class="bench-card-header">
+                    <h4 class="bench-card-title">Morphological / Clinical</h4>
+                    <span class="bench-badge green">HIGH-LEVEL</span>
+                </div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 0; margin-bottom: 1.5rem;">
+                    Subtyping and staging tasks that are visually apparent in tissue architecture.
+                </p>
+                <ul class="bench-task-list">
+                    <li class="bench-task-item">NSCLC subtyping (LUAD vs LUSC)</li>
+                    <li class="bench-task-item">Breast IDC vs ILC</li>
+                    <li class="bench-task-item">Breast staging</li>
+                    <li class="bench-task-item">Lung staging</li>
+                </ul>
+            </div>
+
+            <!-- Low Level Card -->
+            <div class="bench-card">
+                <div class="bench-card-header">
+                    <h4 class="bench-card-title">Molecular (Mutations)</h4>
+                    <span class="bench-badge orange">LOW-LEVEL</span>
+                </div>
+                <ul class="bench-task-list">
+                    <li class="bench-task-item"><strong>LUAD:</strong> TP53, KRAS, STK11</li>
+                    <li class="bench-task-item"><strong>BRCA:</strong> PIK3CA, GATA3, MAP3K1</li>
+                    <li class="bench-task-item"><strong>COAD:</strong> TP53, KRAS, PIK3CA</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         ENCODERS SECTION
+    ============================================================ -->
+    <section id="encoders" class="animate-up" style="padding: 3rem 2rem; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid #eee;">
+        <h2 class="section-title">The 18 Foundation Models</h2>
+        <p class="section-desc" style="max-width: 800px; margin-bottom: 0.85rem;">
+            A diverse landscape of 12 patch-level encoders and 6 slide-level encoders, covering Vision SSL, Vision–Language, and a supervised control.
+        </p>
+        <p class="encoder-resource-note">
+            Resource links point to primary author releases. An em dash means no official resource is available; third-party model mirrors are intentionally omitted.
+        </p>
+
+        <h3 class="bench-category-title" style="margin-top: 2rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M2 15h10"></path><path d="M9 18l3-3-3-3"></path></svg>
+            12 Patch Encoders
+        </h3>
+        <div class="encoder-table-shell">
+            <div class="encoder-table-summary">
+                <p>Patch-level representation registry</p>
+                <div class="encoder-family-counts" aria-label="Encoder family counts">
+                    <span class="encoder-count encoder-count-ssl">7 Vision SSL</span>
+                    <span class="encoder-count encoder-count-vlm">4 Vision–Language</span>
+                    <span class="encoder-count encoder-count-control">1 Supervised Control</span>
+                </div>
+            </div>
+            <table class="premium-table encoder-registry-table">
+                <caption class="sr-only">Twelve patch encoders with embedding width, visual backbone, pretraining objective, family, paper, code, and model links.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Encoder</th>
+                        <th scope="col">Embedding</th>
+                        <th scope="col">Visual Backbone</th>
+                        <th scope="col">Pretraining Objective</th>
+                        <th scope="col">Family</th>
+                        <th scope="col" class="encoder-resource-head">Paper</th>
+                        <th scope="col" class="encoder-resource-head">GitHub</th>
+                        <th scope="col" class="encoder-resource-head">Hugging Face</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-family="ssl">
+                        <td class="font-bold">UNI2-h</td>
+                        <td class="encoder-dim">1,536-D</td>
+                        <td>ViT-H/14 + Register Tokens</td>
+                        <td>DINOv2</td>
+                        <td><span class="encoder-family family-ssl">Vision SSL</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41591-024-02857-3" target="_blank" rel="noopener noreferrer" aria-label="Read the UNI2-h paper" title="UNI paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/mahmoodlab/UNI" target="_blank" rel="noopener noreferrer" aria-label="Open the UNI2-h GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/MahmoodLab/UNI2-h" target="_blank" rel="noopener noreferrer" aria-label="Open UNI2-h on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="ssl">
+                        <td class="font-bold">Prov-GigaPath</td>
+                        <td class="encoder-dim">1,536-D</td>
+                        <td>ViT-g/14</td>
+                        <td>DINOv2</td>
+                        <td><span class="encoder-family family-ssl">Vision SSL</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41586-024-07441-w" target="_blank" rel="noopener noreferrer" aria-label="Read the Prov-GigaPath paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/prov-gigapath/prov-gigapath" target="_blank" rel="noopener noreferrer" aria-label="Open the Prov-GigaPath GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/prov-gigapath/prov-gigapath" target="_blank" rel="noopener noreferrer" aria-label="Open Prov-GigaPath on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="ssl">
+                        <td class="font-bold">Virchow</td>
+                        <td class="encoder-dim">2,560-D</td>
+                        <td>ViT-H/14</td>
+                        <td>DINOv2</td>
+                        <td><span class="encoder-family family-ssl">Vision SSL</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41591-024-03141-0" target="_blank" rel="noopener noreferrer" aria-label="Read the Virchow paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/Paige-AI/paige-ml-sdk" target="_blank" rel="noopener noreferrer" aria-label="Open the official Paige SDK for Virchow" title="Official Paige SDK"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/paige-ai/Virchow" target="_blank" rel="noopener noreferrer" aria-label="Open Virchow on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="ssl">
+                        <td class="font-bold">Virchow2</td>
+                        <td class="encoder-dim">2,560-D</td>
+                        <td>ViT-H/14</td>
+                        <td>DINOv2 + Pathology-Specific Augmentations</td>
+                        <td><span class="encoder-family family-ssl">Vision SSL</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://arxiv.org/abs/2408.00738" target="_blank" rel="noopener noreferrer" aria-label="Read the Virchow2 paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/Paige-AI/paige-ml-sdk" target="_blank" rel="noopener noreferrer" aria-label="Open the official Paige SDK for Virchow2" title="Official Paige SDK"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/paige-ai/Virchow2" target="_blank" rel="noopener noreferrer" aria-label="Open Virchow2 on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="ssl">
+                        <td class="font-bold">H-optimus-0</td>
+                        <td class="encoder-dim">1,536-D</td>
+                        <td>ViT-g/14</td>
+                        <td>DINOv2</td>
+                        <td><span class="encoder-family family-ssl">Vision SSL</span></td>
+                        <td class="encoder-resource-cell"><span class="resource-unavailable" aria-label="No dedicated H-optimus-0 paper is available" title="No dedicated model paper; cite the official software release">—</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/bioptimus/releases/tree/main/models/h-optimus/v0" target="_blank" rel="noopener noreferrer" aria-label="Open the H-optimus-0 GitHub release" title="GitHub release"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/bioptimus/H-optimus-0" target="_blank" rel="noopener noreferrer" aria-label="Open H-optimus-0 on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="ssl">
+                        <td class="font-bold">GPFM</td>
+                        <td class="encoder-dim">1,024-D</td>
+                        <td>ViT-L/14</td>
+                        <td>Multi-Teacher Expert Distillation</td>
+                        <td><span class="encoder-family family-ssl">Vision SSL</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://arxiv.org/abs/2407.18449" target="_blank" rel="noopener noreferrer" aria-label="Read the GPFM paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/birkhoffkiki/GPFM/" target="_blank" rel="noopener noreferrer" aria-label="Open the GPFM GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/majiabo/GPFM" target="_blank" rel="noopener noreferrer" aria-label="Open GPFM on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="ssl">
+                        <td class="font-bold">CTransPath</td>
+                        <td class="encoder-dim">768-D</td>
+                        <td>CNN + Swin-T Hybrid</td>
+                        <td>SRCL Contrastive Learning</td>
+                        <td><span class="encoder-family family-ssl">Vision SSL</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.sciencedirect.com/science/article/pii/S1361841522002043" target="_blank" rel="noopener noreferrer" aria-label="Read the CTransPath paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/Xiyue-Wang/TransPath" target="_blank" rel="noopener noreferrer" aria-label="Open the CTransPath GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><span class="resource-unavailable" aria-label="No author-verified CTransPath Hugging Face model is available" title="No official Hugging Face release; third-party mirrors omitted">—</span></td>
+                    </tr>
+                    <tr data-family="vlm">
+                        <td class="font-bold">CONCH</td>
+                        <td class="encoder-dim">512-D</td>
+                        <td>ViT-B/16 + Text Encoder</td>
+                        <td>CoCa: Contrastive + Captioning</td>
+                        <td><span class="encoder-family family-vlm">Vision–Language</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41591-024-02856-4" target="_blank" rel="noopener noreferrer" aria-label="Read the CONCH paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/mahmoodlab/CONCH" target="_blank" rel="noopener noreferrer" aria-label="Open the CONCH GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/MahmoodLab/conch" target="_blank" rel="noopener noreferrer" aria-label="Open CONCH on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="vlm">
+                        <td class="font-bold">CONCH v1.5</td>
+                        <td class="encoder-dim">768-D</td>
+                        <td>ViT-L/16, 448px</td>
+                        <td>Vision–Language Pretraining (TITAN Patch Encoder)</td>
+                        <td><span class="encoder-family family-vlm">Vision–Language</span></td>
+                        <td class="encoder-resource-cell"><span class="resource-unavailable" aria-label="No dedicated CONCH v1.5 paper is available" title="The official model card lists the paper as forthcoming">—</span></td>
+                        <td class="encoder-resource-cell"><span class="resource-unavailable" aria-label="No dedicated CONCH v1.5 GitHub repository is available" title="The official model card lists the repository as forthcoming">—</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/MahmoodLab/conchv1_5" target="_blank" rel="noopener noreferrer" aria-label="Open CONCH v1.5 on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="vlm">
+                        <td class="font-bold">KEEP</td>
+                        <td class="encoder-dim">768-D</td>
+                        <td>ViT-L/16</td>
+                        <td>Knowledge-Enhanced Vision–Language Pretraining</td>
+                        <td><span class="encoder-family family-vlm">Vision–Language</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.cell.com/cancer-cell/fulltext/S1535-6108(26)00058-9" target="_blank" rel="noopener noreferrer" aria-label="Read the KEEP paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/MAGIC-AI4Med/KEEP" target="_blank" rel="noopener noreferrer" aria-label="Open the KEEP GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/Astaxanthin/KEEP" target="_blank" rel="noopener noreferrer" aria-label="Open KEEP on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="vlm">
+                        <td class="font-bold">MUSK</td>
+                        <td class="encoder-dim">1,024-D</td>
+                        <td>BEiT-3 Multimodal Transformer, 384px</td>
+                        <td>Masked Modeling + Vision–Language Alignment</td>
+                        <td><span class="encoder-family family-vlm">Vision–Language</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41586-024-08378-w" target="_blank" rel="noopener noreferrer" aria-label="Read the MUSK paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/lilab-stanford/MUSK" target="_blank" rel="noopener noreferrer" aria-label="Open the MUSK GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/xiangjx/musk" target="_blank" rel="noopener noreferrer" aria-label="Open MUSK on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr data-family="control">
+                        <td class="font-bold">ResNet50</td>
+                        <td class="encoder-dim">1,024-D</td>
+                        <td>ResNet-50 through Layer 3</td>
+                        <td>ImageNet-1K Supervised Classification</td>
+                        <td><span class="encoder-family family-control">Control</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html" target="_blank" rel="noopener noreferrer" aria-label="Read the ResNet paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py" target="_blank" rel="noopener noreferrer" aria-label="Open the TorchVision ResNet implementation" title="TorchVision implementation"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><span class="resource-unavailable" aria-label="No Hugging Face model corresponds to the TorchVision ResNet50 control weights" title="This control uses TorchVision ImageNet weights, not a Hugging Face model">—</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="bench-category-title" style="margin-top: 2rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            6 Slide Encoders
+        </h3>
+        <div class="encoder-table-shell slide-encoder-table-shell">
+            <table class="premium-table slide-encoder-table">
+                <caption class="sr-only">Six slide encoders with embedding width, source grid, paper, code, and model links.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Encoder</th>
+                        <th scope="col">Embedding</th>
+                        <th scope="col">Built on Grid</th>
+                        <th scope="col" class="encoder-resource-head">Paper</th>
+                        <th scope="col" class="encoder-resource-head">GitHub</th>
+                        <th scope="col" class="encoder-resource-head">Hugging Face</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-bold">CHIEF</td>
+                        <td>768-D</td>
+                        <td>10x / 256px</td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41586-024-07894-z" target="_blank" rel="noopener noreferrer" aria-label="Read the CHIEF paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/hms-dbmi/CHIEF" target="_blank" rel="noopener noreferrer" aria-label="Open the CHIEF GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><span class="resource-unavailable" aria-label="CHIEF has no official Hugging Face release" title="Official weights are distributed outside Hugging Face">—</span></td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Madeleine</td>
+                        <td>512-D</td>
+                        <td>10x / 256px</td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://arxiv.org/abs/2408.02859" target="_blank" rel="noopener noreferrer" aria-label="Read the Madeleine paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/mahmoodlab/MADELEINE" target="_blank" rel="noopener noreferrer" aria-label="Open the Madeleine GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/MahmoodLab/madeleine" target="_blank" rel="noopener noreferrer" aria-label="Open Madeleine on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">PRISM</td>
+                        <td>1,280-D</td>
+                        <td>20x / 224px</td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://arxiv.org/abs/2405.10254" target="_blank" rel="noopener noreferrer" aria-label="Read the PRISM paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><span class="resource-unavailable" aria-label="PRISM has no dedicated official GitHub repository" title="Inference code is distributed with the Hugging Face model">—</span></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/paige-ai/Prism" target="_blank" rel="noopener noreferrer" aria-label="Open PRISM on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">GigaPath-slide</td>
+                        <td>768-D</td>
+                        <td>20x / 256px</td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41586-024-07441-w" target="_blank" rel="noopener noreferrer" aria-label="Read the Prov-GigaPath paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/prov-gigapath/prov-gigapath" target="_blank" rel="noopener noreferrer" aria-label="Open the Prov-GigaPath GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/prov-gigapath/prov-gigapath" target="_blank" rel="noopener noreferrer" aria-label="Open Prov-GigaPath on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">TITAN</td>
+                        <td>768-D</td>
+                        <td>20x / 512px</td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://www.nature.com/articles/s41591-025-03982-3" target="_blank" rel="noopener noreferrer" aria-label="Read the TITAN paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/mahmoodlab/TITAN" target="_blank" rel="noopener noreferrer" aria-label="Open the TITAN GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/MahmoodLab/TITAN" target="_blank" rel="noopener noreferrer" aria-label="Open TITAN on Hugging Face" title="Hugging Face model"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Feather</td>
+                        <td>512-D</td>
+                        <td>20x / 512px</td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-paper" href="https://arxiv.org/abs/2506.09022" target="_blank" rel="noopener noreferrer" aria-label="Read the Feather paper" title="Paper"><i class="ai ai-arxiv" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-github" href="https://github.com/mahmoodlab/MIL-Lab" target="_blank" rel="noopener noreferrer" aria-label="Open the Feather GitHub repository" title="GitHub repository"><i class="fab fa-github" aria-hidden="true"></i></a></td>
+                        <td class="encoder-resource-cell"><a class="encoder-resource-link resource-hf" href="https://huggingface.co/collections/MahmoodLab/feather" target="_blank" rel="noopener noreferrer" aria-label="Open the Feather collection on Hugging Face" title="Hugging Face model collection"><img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="" aria-hidden="true"></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         THEORY & METHODS SECTION
+    ============================================================ -->
+    <section id="theory-methods" class="animate-up" style="padding: 3rem 2rem; max-width: 1200px; margin: 0 auto; border-bottom: 1px solid #eee;">
+        <h2 class="section-title">Theory & Methods</h2>
+        <p class="section-desc" style="max-width: 800px; margin-bottom: 3rem;">
+            An overview of the 7 similarity metrics and 5 alignment methods used to compare and align cross-encoder representations.
+        </p>
+
+        <!-- Similarity Metrics -->
+        <h3 class="bench-category-title" style="margin-top: 2rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            7 Similarity Metrics
+        </h3>
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 4rem; overflow-x: auto;">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th style="width: 28%;">Name</th>
+                        <th style="width: 72%;">What it measures</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-bold">Linear CKA</td>
+                        <td>Linear correlation between representation spaces independent of orthogonal transformations.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Kernel CKA</td>
+                        <td>Non-linear correlation capturing higher-order interactions using RBF kernels.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">SVCCA</td>
+                        <td>Singular Value Canonical Correlation Analysis (PCA followed by CCA).</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">PWCCA</td>
+                        <td>Projection Weighted CCA (weights CCA directions by variance explained).</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Procrustes</td>
+                        <td>Distance after optimal orthogonal alignment.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Cosine RSA</td>
+                        <td>Representational Similarity Analysis using Cosine distance between samples.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Distance Correlation</td>
+                        <td>Dependence measure robust to non-linear associations.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Alignment Methods -->
+        <h3 class="bench-category-title" style="margin-top: 2rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            5 Alignment Methods
+        </h3>
+        <div style="background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow-x: auto;">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th style="width: 28%;">Name</th>
+                        <th style="width: 72%;">What it aligns</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-bold">GCCA</td>
+                        <td>Generalized Canonical Correlation Analysis aligns multiple spaces to a shared latent representation.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">MCCA</td>
+                        <td>Multi-set CCA extends standard CCA to maximize pairwise correlations among multiple representation sets.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Generalized Procrustes</td>
+                        <td>Finds optimal orthogonal transformations to align multiple spaces to a central mean representation.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Joint PCA (jPCA)</td>
+                        <td>Computes a shared low-rank subspace across concatenated features.</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Shared Autoencoder</td>
+                        <td>Learns non-linear mappings into a shared bottleneck capable of reconstructing all modalities.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         RESULTS SECTION
+    ============================================================ -->
+    <section id="results" class="results-section animate-up">
+        <div class="results-heading">
+            <p class="results-kicker">Evidence browser</p>
+            <h2 class="section-title">Results by research question</h2>
+            <p class="section-desc">
+                Explore the released findings without scrolling through a wall of figures.
+                Select a research question, then switch cohort, patch grid, or evaluation view.
+                Every panel is regenerated from the released tables by
+                <code>scripts/render_figures.py</code>.
+            </p>
+        </div>
+
+        <div class="results-summary" aria-label="Headline findings">
+            <div class="result-stat">
+                <strong>92.5–93.5%</strong>
+                <span>GCCA Recall@1 at 10× / 256px across CPTAC and TCGA</span>
+            </div>
+            <div class="result-stat">
+                <strong>7 / 7</strong>
+                <span>similarity measures decline from 5× to 20×</span>
+            </div>
+            <div class="result-stat">
+                <strong>13 tasks</strong>
+                <span>compare best single, concatenated, and MOSAIC features</span>
+            </div>
+        </div>
+
+        <div class="result-story-tabs" role="tablist" aria-label="Research questions" data-tabs>
+            <button id="result-tab-rq1" class="result-story-tab" type="button" role="tab" aria-selected="true" aria-controls="result-panel-rq1">RQ1 <span>Similarity</span></button>
+            <button id="result-tab-rq2" class="result-story-tab" type="button" role="tab" aria-selected="false" aria-controls="result-panel-rq2" tabindex="-1">RQ2 <span>Layerwise</span></button>
+            <button id="result-tab-rq3" class="result-story-tab" type="button" role="tab" aria-selected="false" aria-controls="result-panel-rq3" tabindex="-1">RQ3 <span>Alignment</span></button>
+            <button id="result-tab-rq4" class="result-story-tab" type="button" role="tab" aria-selected="false" aria-controls="result-panel-rq4" tabindex="-1">RQ4 <span>Downstream</span></button>
+            <button id="result-tab-rq5" class="result-story-tab" type="button" role="tab" aria-selected="false" aria-controls="result-panel-rq5" tabindex="-1">RQ5 <span>Transfer</span></button>
+        </div>
+
+        <div id="result-panel-rq1" class="result-story-panel" role="tabpanel" aria-labelledby="result-tab-rq1" tabindex="0">
+            <div class="result-panel-header">
+                <span class="result-number">01</span>
+                <div><h3>How similar are pathology encoder spaces?</h3><p>Patch encoders are compared only within matched coordinate grids; slide encoders can be compared directly across grids.</p></div>
+            </div>
+            <div class="result-figure-tabs" role="tablist" aria-label="Similarity views" data-tabs>
+                <button id="similarity-tab-256" class="result-figure-tab" type="button" role="tab" aria-selected="true" aria-controls="similarity-panel-256">Patch · 256px</button>
+                <button id="similarity-tab-224" class="result-figure-tab" type="button" role="tab" aria-selected="false" aria-controls="similarity-panel-224" tabindex="-1">Patch · 224px</button>
+                <button id="similarity-tab-slide" class="result-figure-tab" type="button" role="tab" aria-selected="false" aria-controls="similarity-panel-slide" tabindex="-1">Slide encoders</button>
+                <button id="similarity-tab-cptac-mag" class="result-figure-tab" type="button" role="tab" aria-selected="false" aria-controls="similarity-panel-cptac-mag" tabindex="-1">Scale · CPTAC</button>
+                <button id="similarity-tab-tcga-mag" class="result-figure-tab" type="button" role="tab" aria-selected="false" aria-controls="similarity-panel-tcga-mag" tabindex="-1">Scale · TCGA</button>
+            </div>
+
+            <figure id="similarity-panel-256" class="result-figure" role="tabpanel" aria-labelledby="similarity-tab-256">
+                <div class="result-figure-toolbar"><span>CPTAC · 10× · 256px · 6 encoders · 7 metrics</span><a class="result-figure-action" href="images/figures/fig1_similarity.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig1_similarity.png" alt="Seven patch-encoder similarity matrices for the CPTAC 10x 256 pixel group" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>The shared morphology signal survives every similarity lens.</strong> ResNet50, the ImageNet-supervised control, is consistently least similar to the pathology encoders, while the seven metrics reveal complementary geometric relationships.</figcaption>
+            </figure>
+            <figure id="similarity-panel-224" class="result-figure" role="tabpanel" aria-labelledby="similarity-tab-224" hidden>
+                <div class="result-figure-toolbar"><span>20× · 224px · large vision-SSL models</span><a class="result-figure-action" href="images/figures/similarity_224px.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/similarity_224px.png" alt="Similarity matrices for GPFM, H-optimus-0, Virchow, and Virchow2" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>Architecture alone does not determine the representation.</strong> Virchow and Virchow2 reach only about 0.30 linear CKA despite sharing an architecture, reflecting their class-token and mean-patch-token output construction.</figcaption>
+            </figure>
+            <figure id="similarity-panel-slide" class="result-figure" role="tabpanel" aria-labelledby="similarity-tab-slide" hidden>
+                <div class="result-figure-toolbar"><span>TCGA + CPTAC · 6 slide encoders</span><a class="result-figure-action" href="images/figures/fig6_slide_encoders.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig6_slide_encoders.png" alt="Slide-level encoder linear CKA matrices for TCGA and CPTAC" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>Slide-level agreement replicates across cohorts.</strong> All six slide encoders are directly comparable because each emits one vector per slide; Feather and TITAN form the strongest pair.</figcaption>
+            </figure>
+            <figure id="similarity-panel-cptac-mag" class="result-figure" role="tabpanel" aria-labelledby="similarity-tab-cptac-mag" hidden>
+                <div class="result-figure-toolbar"><span>CPTAC · 256px · 5× / 10× / 20×</span><a class="result-figure-action" href="images/figures/fig4_magnification.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig4_magnification.png" alt="CPTAC cross-model agreement across magnifications" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>Agreement decreases as cellular detail increases.</strong> All seven measures decline from 5× to 20×: models agree most on coarse tissue architecture and diverge on fine nuclear detail.</figcaption>
+            </figure>
+            <figure id="similarity-panel-tcga-mag" class="result-figure" role="tabpanel" aria-labelledby="similarity-tab-tcga-mag" hidden>
+                <div class="result-figure-toolbar"><span>TCGA · 256px · 5× / 10× / 20×</span><a class="result-figure-action" href="images/figures/fig4b_magnification_tcga.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig4b_magnification_tcga.png" alt="TCGA cross-model agreement across magnifications" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>The magnification trend is not cohort-specific.</strong> TCGA independently reproduces the loss of cross-model agreement at higher magnification.</figcaption>
+            </figure>
+        </div>
+
+        <div id="result-panel-rq2" class="result-story-panel" role="tabpanel" aria-labelledby="result-tab-rq2" tabindex="0" hidden>
+            <div class="result-panel-header"><span class="result-number">02</span><div><h3>Where do architectures converge or diverge?</h3><p>Forward hooks expose the relationship through depth rather than only at the final embedding.</p></div></div>
+            <figure class="result-figure">
+                <div class="result-figure-toolbar"><span>5 encoders · block-to-block CKA</span><a class="result-figure-action" href="images/figures/fig10_layerwise.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig10_layerwise.png" alt="Layerwise representational similarity through encoder depth" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>Depth stratifies by architecture.</strong> ViT pathology models become more similar to UNI2 late in the network, CTransPath remains comparatively distant, and the ResNet50 control rises before falling.</figcaption>
+            </figure>
+        </div>
+
+        <div id="result-panel-rq3" class="result-story-panel" role="tabpanel" aria-labelledby="result-tab-rq3" tabindex="0" hidden>
+            <div class="result-panel-header"><span class="result-number">03</span><div><h3>Can independently trained models share one coordinate system?</h3><p>Alignment quality and identity retrieval expose different sides of the shared-space trade-off.</p></div></div>
+            <div class="result-figure-tabs" role="tablist" aria-label="Alignment views" data-tabs>
+                <button id="alignment-tab-cptac" class="result-figure-tab" type="button" role="tab" aria-selected="true" aria-controls="alignment-panel-cptac">Alignment · CPTAC</button>
+                <button id="alignment-tab-tcga" class="result-figure-tab" type="button" role="tab" aria-selected="false" aria-controls="alignment-panel-tcga" tabindex="-1">Alignment · TCGA</button>
+                <button id="retrieval-tab-cptac" class="result-figure-tab" type="button" role="tab" aria-selected="false" aria-controls="retrieval-panel-cptac" tabindex="-1">Retrieval · CPTAC</button>
+                <button id="retrieval-tab-tcga" class="result-figure-tab" type="button" role="tab" aria-selected="false" aria-controls="retrieval-panel-tcga" tabindex="-1">Retrieval · TCGA</button>
+            </div>
+            <figure id="alignment-panel-cptac" class="result-figure" role="tabpanel" aria-labelledby="alignment-tab-cptac">
+                <div class="result-figure-toolbar"><span>CPTAC · 10× · 256px · 6 encoders</span><a class="result-figure-action" href="images/figures/fig7_alignment_methods.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig7_alignment_methods.png" alt="Five alignment methods compared on CPTAC" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>No aligner dominates every objective.</strong> GCCA is strongest on retrieval and shared-space agreement; generalized Procrustes preserves reconstruction and neighbourhoods but aligns identities less effectively.</figcaption>
+            </figure>
+            <figure id="alignment-panel-tcga" class="result-figure" role="tabpanel" aria-labelledby="alignment-tab-tcga" hidden>
+                <div class="result-figure-toolbar"><span>TCGA · 10× · 256px · 5 encoders</span><a class="result-figure-action" href="images/figures/fig9_alignment_tcga.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig9_alignment_tcga.png" alt="Five alignment methods compared on TCGA" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>The alignment trade-off replicates on TCGA.</strong> The method ordering closely matches CPTAC even though KEEP is unavailable in this grid.</figcaption>
+            </figure>
+            <figure id="retrieval-panel-cptac" class="result-figure" role="tabpanel" aria-labelledby="retrieval-tab-cptac" hidden>
+                <div class="result-figure-toolbar"><span>CPTAC · held-out patch identity retrieval</span><a class="result-figure-action" href="images/figures/fig2_retrieval.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig2_retrieval.png" alt="Cross-model identity retrieval metrics on CPTAC" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>Alignment changes retrieval from chance to reliable identity matching.</strong> GCCA reaches 92.5% Recall@1 on held-out CPTAC patches; aligners are fit only on the training split.</figcaption>
+            </figure>
+            <figure id="retrieval-panel-tcga" class="result-figure" role="tabpanel" aria-labelledby="retrieval-tab-tcga" hidden>
+                <div class="result-figure-toolbar"><span>TCGA · held-out patch identity retrieval</span><a class="result-figure-action" href="images/figures/fig8_retrieval_tcga.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig8_retrieval_tcga.png" alt="Cross-model identity retrieval metrics on TCGA" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>TCGA confirms the same shared-space result.</strong> GCCA reaches 93.5% Recall@1 across the five encoders available at 10× / 256px.</figcaption>
+            </figure>
+        </div>
+
+        <div id="result-panel-rq4" class="result-story-panel" role="tabpanel" aria-labelledby="result-tab-rq4" tabindex="0" hidden>
+            <div class="result-panel-header"><span class="result-number">04</span><div><h3>Does the shared space improve downstream MIL?</h3><p>Thirteen tasks compare the best fixed single encoder, raw concatenation, and MOSAIC under the same MIL protocol.</p></div></div>
+            <figure class="result-figure">
+                <div class="result-figure-toolbar"><span>13 tasks · ABMIL + TransMIL</span><a class="result-figure-action" href="images/figures/fig3_downstream_auc.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig3_downstream_auc.png" alt="Downstream MIL AUC across thirteen tasks" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>Representation choice matters most on weak-signal molecular tasks.</strong> Morphological and clinical tasks approach saturation, while mutation prediction separates single, concatenated, and shared-space features. The dashed line marks chance.</figcaption>
+            </figure>
+        </div>
+
+        <div id="result-panel-rq5" class="result-story-panel" role="tabpanel" aria-labelledby="result-tab-rq5" tabindex="0" hidden>
+            <div class="result-panel-header"><span class="result-number">05</span><div><h3>Can one encoder be translated into another?</h3><p>Directional source-to-target translation tests whether the shared latent space retains model identity and neighbourhood structure.</p></div></div>
+            <figure class="result-figure">
+                <div class="result-figure-toolbar"><span>Source → target · cosine + Recall@1</span><a class="result-figure-action" href="images/figures/fig5_transfer.png" target="_blank" rel="noopener">Open full resolution <span aria-hidden="true">↗</span></a></div>
+                <div class="result-figure-stage"><img src="images/figures/fig5_transfer.png" alt="Directional cross-model representation translation matrices" loading="lazy" decoding="async"></div>
+                <figcaption class="result-figure-caption"><strong>Translation is strong but directional.</strong> The shared space can reconstruct a target-like embedding with high cosine similarity, while exact target identity retrieval remains more model-pair dependent.</figcaption>
+            </figure>
+        </div>
+    </section>
+
+
+
+
+    <script src="script.js"></script>
+</body>
+</html>
